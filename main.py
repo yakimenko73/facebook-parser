@@ -9,6 +9,7 @@ import configparser
 import selenium
 
 from selenium import webdriver
+from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
@@ -110,12 +111,16 @@ def parse_friends(driver):
 	go_to_my_profile(driver)
 	number_friends = get_number_friends(driver)
 	
-	driver.get(f'{driver.current_url}&sk=friends')
+	button_friends = WebDriverWait(driver, 10).until(
+		EC.presence_of_element_located((By.XPATH, 
+		"//a[contains(@href,'&sk=friends')]"
+	)))
+	button_friends.click()
+	driver.refresh()
 
 	list_DOM = get_friend_list_DOM(driver)
 	for i in range(number_friends):
 		friends = list_DOM.find_elements_by_xpath(FRIEND_CLASSNAME)
-
 		friend_data = {
 			"name": friends[i].find_element_by_xpath("div[2]/div[1]").text,
 			"url": friends[i].find_element_by_xpath("div/a").get_attribute("href")
